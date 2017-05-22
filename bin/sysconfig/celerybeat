@@ -1,0 +1,28 @@
+# Absolute or relative path to the 'celery' command:
+CELERY_BIN="/usr/local/bin/celery"
+#CELERY_BIN="/virtualenvs/def/bin/celery"
+
+# App instance to use
+# comment out this line if you don't use an app
+CELERY_APP="start.entry"
+# or fully qualified:
+#CELERY_APP="proj.tasks:app"
+
+# Where to chdir at start.
+CELERYBEAT_CHDIR="/home/siddhika.nag/My Workspace/BinatoneTTPLGateway"
+
+# Workers run as an unprivileged user
+CELERYD_USER=siddhika.nag
+CELERYD_GROUP=siddhika.nag
+# Beat run as an unprivileged user
+CELERYBEAT_LOG_FILE="/home/siddhika.nag/My Workspace/BinatoneTTPLGateway/tmp/celery/celery-beat.log"
+CELERYBEAT_PID_FILE="/home/siddhika.nag/My Workspace/BinatoneTTPLGateway/tmp/celery/celery-beat.pid"
+
+CELERYBEAT_LOG_LEVEL=DEBUG
+
+# Beat run as an unprivileged user
+CELERYBEAT_USER=siddhika.nag
+CELERYBEAT_GROUP=siddhika.nag
+
+# Extra arguments to celerybeat
+CELERYBEAT_OPTS="--schedule=start.entry.MyBeatScheduler"
