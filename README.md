@@ -1,77 +1,56 @@
-# GMR Gateway
+# xfusion-azure-sdk-python
+SDK of platform for Python Developers is a set of libraries which allow you to work on xFusion Platform for device integration and data submission.
 
-# 1. Introduction
+The SDK minimum system requirements includes:
 
-GMR Data Processing Gateway is integrated with xfusion-python-sdk. This gateway allows GMR Device to connect using TCP Listner for getting the data. This raw data is parsed and the string is set into the required format to publish on xFusion Platform.
+- [x] Operating System – Ubuntu 14.04
+- [x] CPU – 2 core
+- [x] RAM – 4 GB 
+- [x] Python v2.7
+- [x] Internet connectivity is required for package installation and communication with Azure Protocol Hub.
 
-The minimum system requirements for Gateway includes:
+##  Installation 
+The required packages are installed by executing installUbuntuPackage.sh , build.sh and setup.sh script.
 
-	Operating System – Ubuntu 14.04
-	CPU – 2 core
-	RAM – 4 GB
-	python v2.7
-	Internet connectivity is required for communication with GMR Devices and xFusion Protocol Hub.
+##  Configuration 
+The authentication needs to be done in Azure SDK by updating following fields under [IOTHUB-Detail] section in config.ini file
+**Usage:**
+```python
 
-# 2. Installation
-
-The required packages are installed by executing installUbuntuPackage.sh script.
-
-# 3. Configuration
-
-The authentication needs to be done for GMR Data Processing Gateway using Python SDK by updating following fields under User Authentication section in config.ini file
-
-``` python
-	user_id = <xFusion Platform Login ID>
-
-	password = <xFusion Platform Login Password>
-
-	application_id = <xFusion Platform Application ID>
+* Connection string - primary key
+Connection string  = <azure-iot-connecting-string>
 ```
+	
+## Features
+The SDK includes following libraries:
 
-# 4. Features
+### 1. Registration
+This module is essential for device on-boarding. The device gets registered in the platform and Azure IotHUb sdk using a UNIQUE DEVICE IDENTIFIER and gets a mapped platform Device ID and device info.
 
-The SDK includes following libraries: 
 
-## 4.1 Get GMR Data
-
-This process is essential for getting data of GMR device. The TCP Listner is configured on defined ip and port, then TCP Listner keep awake continuosly. The GMR Device, placed into vehicle connects to TCP Listner and send hexadecimal data string. Here the Gateway differentiate hex data for required parameter.
-
-> Example -
-
-Data received from GMR Deives :- 545A006E242401110115000008616930333774901101140A1C1D0016000000000000000000000000000000000000000000000004007B26AF000CAA4000001F37017400000000000000000000001A03100062160162087A2D0062160163086630006216016108843000000000000000D362C50D0A 
-
-## 4.2 Device Registration
-
-This module is essential for device on-boarding. The device gets registered in the platform using a UNIQUE DEVICE IDENTIFIER and gets a mapped platform Device ID
-
-Usage:
+**Usage:**
+```python
 
 * Import the library
 from IotGateway.registerDevice import registration
-	
+from IotGateway.sdk.service.samples.azure_register import iothub_create_device
+
 * Create a registration object
 registrationObj=registration.registration()
 
 * Using the registration object register the device with UNIQUE DEVICE IDENTIFIER
 deviceID = registrationObj.device_registration_push(device = <UNIQUE DEVICE IDENTIFIER>)
 
-## 4.3 Processiong on GMR Data
+* Using UNIQUE DEVICE IDENTIFIER device register on Azure IotHub 
+device_info = iothub_create_device(<UNIQUE DEVICE IDENTIFIER>, <primary_key>, <sencondary_key>)
 
-This modules the data from raw string to required data in proper units and format.
+```
 
-The processing on Data includes following steps:
-
-* On the basis of currnet and previous lat-lng we calculate travelled distance. If travelled distance > 50 metter than send current lat-lng on IoTHub else send privous lat-lng for Removing zig-zag problem.
-
-* On the basis of IgnitionStatus we calculate **Total Trip Time** and **Total travelled Distance** covered is calculated. The data is stored into the InRam Database when the trip is in progress. When trips ends the data is retrieved from InRam Database and Total Trip Time and Total travelled Distance Covered is calculated.
-
-* On the basis of last data occurrence time manage device state ON/OFF. 
-
-## 4.4 Data Formatter
-
+### 2. Data Formatter
 This modules the data as it is required by xFusion Platform to understand.
 
-Usage:
+**Usage:**
+```python
 
 * Import the library
 from IotGateway.protocol.data_formatter import Formatter
@@ -80,24 +59,24 @@ from IotGateway.protocol.data_formatter import Formatter
 formatter_obj = Formatter()
 
 * Using the formatter object format the data passing fetched deviceID
-formatted_data =  formatter_obj.format_data(<formatted_data>, <deviceID>, <Service-Parameter>, <DataSource-Parameter>,  <Parameter-Value>, <Parameter value fetched time in UTC Epoch>, <Parameter value storage time in UTC Epoch>)
+formatted_data =  formatter_obj.format_data(<formatted_data>, <deviceID>, <Service-Parameter> , <DataSource-Parameter>,  <Parameter-Value>,<Parameter value fetched time in UTC Epoch> , <Parameter value storage time in UTC Epoch> )
 
-## 4.5 Publisher
+```
 
-This module publishes the formatted data to Protocol Hub in encrypted format.
+### 3. Publisher
+This module publishes the formatted data to Azure IOt Hub in encrypted format.
 
-Usage:
+**Usage:**
+```python
 
 * Import the library
 from IotGateway.publishData.publisher import PublisherIOTHub
+from IotGateway.sdk.device.sample.iothub_client_sample import iothub_client_init, iothub_client_sample_run
 
 * Create a publisher object
 pub_obj = PublisherIOTHub()
 
-* Using the publisher object  publish the formatted data
-pub_obj.publish(<deviceID>, <encryptedcontent>, <IoTHub_IP>, <IoTHub_Port>)
+* Using the publisher object  publish the encrypted data to Azure iothub 
+pub_obj.publish(<deviceID>, <encrypted data> )
 
-# Reference:-
-
-https://docs.python.org/2/library/socketserver.html
-
+```
