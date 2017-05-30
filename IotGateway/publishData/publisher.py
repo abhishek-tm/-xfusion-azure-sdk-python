@@ -6,27 +6,26 @@ Script to initialize publisher object and call encrypData & publish_to_IoTHub  m
 '''
 
 from IotGateway.publishData.encryptData import encryptData
-from IotGateway.publishData.pushData import connect_to_IoTHub , publish_to_IoTHub
 from IotGateway.derivedKPI.calculate_derivedKPI import derivedKPI
 from IotGateway.protocol.data_formatter import Formatter
-from IotGateway.sdk.device.sample.iothub_client_sample import iothub_client_init, iothub_client_sample_run
+from IotGateway.sdk.device.samples.iothub_client_sample import iothub_client_conn, iothub_client_publish_message
 from IotGateway.connection import redis_conn
 from IotGateway.config import Config
 from logger import log_function
 import os
 import time
+
 # Class to define publisher 
-class PublisherIOTHub(object) :
+class PublisherIOTHub(object):
     
     def __init__(self):
         file_name = os.path.basename(__file__).split('.')[0]
-        self.logger = log_function(file_name)
+        #self.logger = log_function(file_name)
         self.config_obj = Config()
         iothub = self.config_obj.iothub()
         self.IoTHub_IP = iothub['IP']
         self.IoTHub_port = iothub['Port']
         self.publisher = False 
-        self.publisher = connect_to_IoTHub(self.IoTHub_IP,self.IoTHub_port)
         self.derivedKPI_obj = derivedKPI()
         self.redis_obj_perf_data = redis_conn('REDIS_PERF_DATA')
         connection_lost   = self.config_obj.wait_for_connection()
@@ -41,7 +40,7 @@ class PublisherIOTHub(object) :
 	Parameters : DeviceID and Performance Data
         Returns : Encrypted data
     """
-    def publish(self, deviceId, content, sys_timestamp):
+    def publish(self, deviceId, connecting_string, content, sys_timestamp):
         formatter_obj = Formatter()
         check_timestamp = self.redis_obj_perf_data.get( str(deviceId) + "_check_timestamp")
         update_content = []
@@ -73,12 +72,15 @@ class PublisherIOTHub(object) :
         and data publish on IOT Hub when publisher object exists..
         
         """
-        if iothub_client_init():
+        #CONNECTION_STRING  = 'HostName=ttpliot.azure-devices.net;DeviceId=Thermostat;SharedAccessKey=qq77l72Y8RwBwy/SevxGZA=='
+        #PROTOCOL = "MQTT"
+        CONNECTION_STRING  = 'HostName=ttpliot.azure-devices.net;DeviceId=Thermostat;SharedAccessKey=qq77l72Y8RwBwy/SevxGZA=='
+        client =  iothub_client_conn(connecting_string)
+        if client:
             encryptedcontent = encryptData(self.IoTHub_IP, self.IoTHub_port, deviceId, str(update_content))
             #print encryptedcontent
-            iothub_client_sample_run(deviceId, encryptedcontent)
-            self.logger.debug('Published to IOTHub !!!!: %s' %(deviceId ))
+            iothub_client_publish_message(connecting_string ,deviceId, encryptedcontent)
+            #self.logger.debug('Published to IOTHub !!!!: %s' %(deviceId ))
             
-
         self.redis_obj_perf_data.set("Device:%s"%str(deviceId), sys_timestamp)
         self.redis_obj_perf_data.set(str(deviceId)+"_Device_last_up_time",int(time.time())) 

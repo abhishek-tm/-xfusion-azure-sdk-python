@@ -2,8 +2,8 @@
 Created on 31-jan-2017
 @author: $iddhik@.nag
 '''
-from __builtin__ import float
 
+from __builtin__ import float
 
 '''
 Script to read data from tcp server
@@ -64,9 +64,10 @@ class service(SocketServer.BaseRequestHandler):
                 
                 #request to recv data 
                 data_string = self.request.recv(1024)
-            
+                
                 #when data_string is not null
                 if len(data_string)>5:
+                    print data_string
                     data_string  =  data_string + 'distance'+ ":" + '0.0' 
                     data_string = data_string +";" +'time_travelled' + ":" + '0'
                     data_string1  = data_string.split(';')
@@ -77,8 +78,10 @@ class service(SocketServer.BaseRequestHandler):
                     #find unqiue_id 
                     device_name = str(data_string1[1].split(':')[1]) + str(data_string1[6].split(':')[1])
                     #device register and get device id 
+                    print device_name
                     device_id = registrationObj.device_registration_push(device = device_name)
-                     
+                    connecting_string = redis_obj_perf_data_register.get(str(device_id)  + "azure_device_info")
+                    print device_id,connecting_string 
                     #Formatted data list to publish
                     formatted_data = []
                             
@@ -123,7 +126,7 @@ class service(SocketServer.BaseRequestHandler):
                         else:
                             redis_obj_perf_data.set( str(device_id) +"sys_timestamp" , str(int(time1)))
                                 
-                        #Data process when lat_lng > 0 
+                        #Data process when lat_lng > 0
                         latitude = (p_lat,p_lng)
                         longtitude = (c_lat,c_lng)
                         
@@ -143,7 +146,7 @@ class service(SocketServer.BaseRequestHandler):
                             data_string1[-1] = "time_travelled" + ':' + str(time_travelled)
                             data_string1[-2] =  "distance" + ':' + str(round(distance, 2))
                             redis_obj_perf_data.set(str(device_id) + "_previous_Latitude_Longitude" , str(c_lat)+ ':' + str(c_lng))
-                   
+                        
                         #services for gmr_tracker  
                         for index in range(len(data_string1)):
                             
@@ -215,9 +218,9 @@ class service(SocketServer.BaseRequestHandler):
                                     formatted_data = formatter_obj.format_data(formatted_data, device_id, 'gmr_time_travelled' ,'gmr_time_travelled',\
                                                                                 gmr_sensor_parameters[1],check_timestamp, sys_timestamp)
                         
-                        #print "formatted_data", formatted_data
+                        print "formatted_data", formatted_data
                         # Publish formatted data on platform using SDK  
-                        pub_obj.publish(str(device_id), formatted_data, sys_timestamp)
+                        pub_obj.publish(str(device_id),str(connecting_string), formatted_data, sys_timestamp)
                             
                 time.sleep(.01)
 
