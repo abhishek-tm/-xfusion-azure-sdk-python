@@ -1,0 +1,1 @@
+/usr/bin/cc  --std=c99     -fPIC  -Werror -Werror    CMakeFiles/mqtt_client_sample.dir/mqtt_client_sample.c.o CMakeFiles/mqtt_client_sample.dir/linux/main.c.o  -o mqtt_client_sample -rdynamic ../../../c-utility/libaziotsharedutil.a -lpthread ../../libumqtt.a ../../../c-utility/libaziotsharedutil.a -lcurl -lssl -lcrypto -lpthread -lm -luuid 

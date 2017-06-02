@@ -1,0 +1,2 @@
+/usr/bin/ar cr libiothub_client.a  CMakeFiles/iothub_client.dir/src/iothub_client.c.o CMakeFiles/iothub_client.dir/src/version.c.o CMakeFiles/iothub_client.dir/src/iothubtransport.c.o
+/usr/bin/ranlib libiothub_client.a

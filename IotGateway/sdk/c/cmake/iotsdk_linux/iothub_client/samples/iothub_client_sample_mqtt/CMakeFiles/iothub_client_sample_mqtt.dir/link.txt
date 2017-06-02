@@ -1,0 +1,1 @@
+/usr/bin/cc  --std=c99 --std=c99   -fPIC  -Werror    CMakeFiles/iothub_client_sample_mqtt.dir/iothub_client_sample_mqtt.c.o  -o iothub_client_sample_mqtt -rdynamic ../../libiothub_client_mqtt_transport.a ../../libiothub_client.a ../../../umqtt/libumqtt.a ../../../c-utility/libaziotsharedutil.a -lcurl -lssl -lcrypto -lpthread -lm -luuid 
